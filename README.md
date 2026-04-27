@@ -2,6 +2,8 @@
 0day - Privilege escalation using DOAS
 Exploit for https://codeberg.org/thejessesmith/doas.git
 
+Requires user interation 
+
 # TOCTOU Race Condition em doasedit — Analise Tecnica
 
 ## CWE-367: Time-of-check Time-of-use Race Condition
