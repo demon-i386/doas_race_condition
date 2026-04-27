@@ -1,6 +1,6 @@
 # doas_race_condition
 0day - Privilege escalation using DOAS
-
+Exploit for https://codeberg.org/thejessesmith/doas.git
 
 # TOCTOU Race Condition em doasedit — Analise Tecnica
 
