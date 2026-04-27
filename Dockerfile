@@ -1,28 +1,34 @@
-# VIPER TESTS: doas + gcc + nano, users attacker (no doas) and root (has doas)
+# VIPER TESTS: doas (built from source) + exploit TOCTOU CWE-367
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    doas \
     gcc \
     libc6-dev \
+    libpam0g-dev \
+    make \
+    bison \
+    git \
+    ca-certificates \
     nano \
     vim \
     inotify-tools \
     procps \
     && rm -rf /var/lib/apt/lists/*
 
+# Build doas from source (vulnerable version with TOCTOU in doasedit)
+RUN git clone https://codeberg.org/thejessesmith/doas.git /tmp/doas-src && \
+    cd /tmp/doas-src && \
+    make CC=gcc SYSCONFDIR=/etc && \
+    make install SYSCONFDIR=/etc && \
+    rm -rf /tmp/doas-src
+
 # doas.conf: root and victim can use doas (attacker cannot); nopass for non-interactive use
 # victim runs doasedit; doas cp inside doasedit executes as root
 RUN echo "permit nopass root as root" > /etc/doas.conf && \
     echo "permit nopass victim as root" >> /etc/doas.conf && \
     chmod 0400 /etc/doas.conf
-
-# doasedit: versão original Jesse Smith (vulnerável a TOCTOU CWE-367)
-# Usa $mydir/$myfile diretamente (sem realpath), temp pattern doasedit.XXXXXXXX
-COPY doas/doasedit /usr/local/bin/doasedit
-RUN chmod 755 /usr/local/bin/doasedit
 
 # User attacker: regular user, no doas access
 RUN useradd -m -s /bin/bash attacker
